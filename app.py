@@ -4,7 +4,7 @@ from streamlit_gsheets import GSheetsConnection
 st.title("🏃‍♂️ Carrera de Hábitos")
 
 # Reemplaza con el link de tu Google Sheet (Asegúrate que sea 'Cualquier persona con el enlace puede leer')
-url = "TU_URL_DE_GOOGLE_SHEETS_AQUI"
+url = "https://docs.google.com/spreadsheets/d/1Bk5dt6ud_wy3W1px1zlYfht5-KE52lzkok9SaaB0m6g/edit?gid=215890415#gid=215890415"
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(spreadsheet=url, ttl=0)
