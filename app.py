@@ -3,22 +3,38 @@ from streamlit_gsheets import GSheetsConnection
 
 st.title("🏃‍♂️ Carrera de Hábitos")
 
-# Reemplaza con el link de tu Google Sheet (Asegúrate que sea 'Cualquier persona con el enlace puede leer')
-url = "https://docs.google.com/spreadsheets/d/1Bk5dt6ud_wy3W1px1zlYfht5-KE52lzkok9SaaB0m6g/edit?gid=215890415#gid=215890415"
-
+# Conexión segura
 conn = st.connection("gsheets", type=GSheetsConnection)
-df = conn.read(spreadsheet=url, ttl=0)
 
-# Mostrar la carrera
-for index, row in df.iterrows():
-    pista = " — " * int(row['Total Puntos']) + row['Emoji']
-    st.write(f"**{row['Participante']}**")
-    st.text(pista)
+try:
+    # Intentamos leer la Hoja 2
+    df = conn.read(worksheet="Hoja 2", ttl=0)
+    
+    # Limpiamos los nombres de las columnas por si tienen espacios locos
+    df.columns = df.columns.str.strip()
 
-# Formulario para sumar puntos
-with st.form("registro"):
-    usuario = st.selectbox("¿Quién eres?", df['Participante'].tolist())
-    if st.form_submit_button("¡Hice algo!"):
-        df.loc[df['Participante'] == usuario, 'Total Puntos'] += 1
-        conn.update(spreadsheet=url, data=df)
-        st.success("¡Punto cargado! Refresca la página.")
+    # 🏁 Mostrar la pista de carrera
+    st.subheader("Pista de Competición")
+    for index, row in df.iterrows():
+        pista = " — " * int(row['Total Puntos']) + row['Emoji']
+        st.write(f"**{row['Participante']}** ({row['Total Puntos']} pts)")
+        st.info(pista)
+
+    st.divider()
+
+    # ✍️ Formulario para sumar puntos
+    with st.form("registro"):
+        st.write("### ¿Completaste un hábito?")
+        # Usamos el nombre de la columna ya limpio
+        lista_nombres = df['Participante'].tolist()
+        usuario = st.selectbox("Selecciona tu nombre", lista_nombres)
+        
+        if st.form_submit_button("➕ Sumar 1 punto"):
+            df.loc[df['Participante'] == usuario, 'Total Puntos'] += 1
+            conn.update(worksheet="Hoja2", data=df)
+            st.success("¡Punto guardado!")
+            st.rerun()
+
+except Exception as e:
+    st.error(f"Error de lectura: {e}")
+    st.write("Columnas detectadas en la hoja:", df.columns.tolist() if 'df' in locals() else "No se pudo leer la hoja")
