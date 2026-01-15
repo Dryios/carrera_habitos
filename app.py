@@ -31,7 +31,7 @@ try:
         
         if st.form_submit_button("➕ Sumar 1 punto"):
             df.loc[df['Participante'] == usuario, 'Total Puntos'] += 1
-            conn.update(worksheet="Hoja2", data=df)
+            conn.update(worksheet="Hoja 2", data=df)
             st.success("¡Punto guardado!")
             st.rerun()
 
