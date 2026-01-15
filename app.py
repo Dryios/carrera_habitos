@@ -1,13 +1,32 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 
-st.title("🏃 Carrera de Hábitos")
+# --- CAPA DE SEGURIDAD ---
+def check_password():
+    if "password_correct" not in st.session_state:
+        st.session_state["password_correct"] = False
 
-# 1. Asegúrate de que esta URL sea la de tu hoja "La foca"
-url_sheet = "https://docs.google.com/spreadsheets/d/1Bk5dt6ud_wy3W1px1zlYfht5-KE52lzkok9SaaB0m6g/edit?gid=215890415#gid=215890415"
+    if st.session_state["password_correct"]:
+        return True
 
-# Conexión segura con los Secrets
-conn = st.connection("gsheets", type=GSheetsConnection)
+    st.title("🔒 Acceso Privado")
+    password_input = st.text_input("Ingresa la contraseña para ver la carrera", type="password")
+    
+    if st.button("Entrar"):
+        if password_input == st.secrets["password"]:
+            st.session_state["password_correct"] = True
+            st.rerun()
+        else:
+            st.error("❌ Contraseña incorrecta")
+    return False
+
+# Solo si la contraseña es correcta, ejecutamos el resto
+if check_password():
+    st.title("🏃 Carrera de Hábitos")
+    
+    # Aquí sigue todo tu código anterior...
+    url_sheet = "https://docs.google.com/spreadsheets/d/1Bk5dt6ud_wy3W1px1zlYfht5-KE52lzkok9SaaB0m6g/edit?gid=215890415#gid=215890415"
+    conn = st.connection("gsheets", type=GSheetsConnection)
 
 try:
     # 2. Leemos la pestaña con el nuevo nombre: Hoja_2
